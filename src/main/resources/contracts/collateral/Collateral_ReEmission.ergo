@@ -1,7 +1,7 @@
 {
   // Lithos Collateral Contract
-  // Lender creates a collateral box under this contract, which may be spent by a miner in the coinbase tx
-  // or refunded by the lender.
+  // Lender creates a collateral box under this contract, which may be spent by a miner via a transaction included
+  // into the block. Alternatively, it may be refunded by the lender.
 
   // Constants
   // _EMISSION_ID - Emission Box Singleton Id
