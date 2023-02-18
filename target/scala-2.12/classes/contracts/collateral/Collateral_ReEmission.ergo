@@ -1,0 +1,95 @@
+{
+  // Lithos Collateral Contract
+  // Lender creates a collateral box under this contract, which may be spent by a miner in the coinbase tx
+  // or refunded by the lender.
+
+  // Constants
+  // _EMISSION_ID - Emission Box Singleton Id
+  // _ROLLUP_HOLDING_HASH - Hashed PropBytes of Rollup Holding Contract (Currently filler prop bytes of "true" contract)
+  // _FIXED_RATE - Fixed emission rate
+  // _FIXED_RATE_PERIOD - Period for fixed rate
+  // _FOUNDER_INIT_REWARD - Ergo founder init reward
+  // _EPOCH_LENGTH - Length of emission epoch
+  // _ONE_EPOCH_REDUCTION - Amount of Erg reduced from emissions after epoch
+
+  // If data input is present, assume collateral is being spent by miner, otherwise, assume refund.
+  val isForPool = CONTEXT.dataInputs.getOrElse(0, SELF).id != SELF.id
+
+
+  val feeValue = SELF.R4[Long].get
+  val lenderPk = SELF.R5[SigmaProp].get
+
+  if(isForPool){
+      val newEmBox = CONTEXT.dataInputs(0)
+
+      val correctEmission = newEmBox.tokens(0)._1 == _EMISSION_ID
+      val modifiedCoinbase = newEmBox.R4[Coll[Byte]].get == SELF.id
+      val newlyEmitted = newEmBox.creationInfo._1 == HEIGHT // Verify that we are using the outputted emission box as the data input
+
+      val minersReward = _FIXED_RATE - _FOUNDER_INIT_REWARD
+      val minersFixedRatePeriod = _FIXED_RATE_PERIOD + 2 * _EPOCH_LENGTH
+      val epoch = (HEIGHT - (_FIXED_RATE_PERIOD / _EPOCH_LENGTH)) + 1
+
+      val coinsToIssue = if(HEIGHT < minersFixedRatePeriod){
+        minersReward
+      }else{
+        _FIXED_RATE - (_ONE_EPOCH_REDUCTION * epoch)
+      }
+
+      val afterReEmission = {
+        if(coinsToIssue > 15000000000L){
+          coinsToIssue - 12000000000L // Must only cover (R - 12) ERG while emission is over 15 ERG
+        }else{
+          3000000000L // Must cover (R - (R - 3)) or 3 ERG while emission is under 15 and during Re-Emission period where reward is stable
+        }
+      }
+
+      val holdingBox:     Box = OUTPUTS(0)
+
+      val enoughValue  = SELF.value >= afterReEmission - feeValue
+
+      // Fee taken from holding box, and fee does not exceed 3% (to prevent abuse by miners who self collateralize)
+      val holdingValid = allOf(
+        Coll(
+          holdingBox.value == afterReEmission - feeValue,
+          (feeValue * 100000) / afterReEmission < 3000,
+          blake2b256( holdingBox.propositionBytes ) == _ROLLUP_HOLDING_HASH,
+          holdingBox.R4[Coll[Byte]].get == SELF.id // Ensure only one collateral box per tx
+          )
+        )
+
+      // Outsourceable PoW Scheme means that lenderPk can equal minerPk, and greatly simplify third-party collateralization :)
+      // This check inherently ensures that minerRewardBox is under lenderPk's associated miner reward contract
+      val lenderIsBlockMiner = lenderPk.propBytes == proveDlog(minerPk).propBytes
+
+      val madeChangeBox = {
+        if(SELF.value > afterReEmission - feeValue){
+          val changeBox = OUTPUTS(1)
+
+          allOf(
+            Coll(
+              changeBox.value == SELF.value - (afterReEmission - feeValue),
+              changeBox.propositionBytes == lenderPk.propBytes
+            )
+          )
+        }else{
+          true
+        }
+      }
+
+      val validCoinbase = allOf(
+        Coll(
+          enoughValue,
+          holdingValid,
+          lenderIsBlockMiner,
+          madeChangeBox
+        )
+      )
+
+      sigmaProp( validCoinbase )
+
+  }else{
+    lenderPk
+  }
+
+}
