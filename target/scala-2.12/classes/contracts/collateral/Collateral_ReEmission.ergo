@@ -81,6 +81,7 @@
         Coll(
           correctEmission,
           newlyEmitted,
+          modifiedCoinbase,
           enoughValue,
           holdingValid,
           lenderIsBlockMiner,
