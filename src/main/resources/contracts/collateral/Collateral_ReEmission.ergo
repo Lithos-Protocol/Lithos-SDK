@@ -79,6 +79,8 @@
 
       val validCoinbase = allOf(
         Coll(
+          correctEmission,
+          newlyEmitted,
           enoughValue,
           holdingValid,
           lenderIsBlockMiner,
