@@ -29,6 +29,20 @@ object CollateralContract {
     Contract.fromErgoScript(ctx, constants, ScriptGenerator.mkCollatScript("Collateral"))
   }
 
+  def mkTestCollatContract(ctx: BlockchainContext): Contract = {
+    val constants = ConstantsBuilder
+      .create()
+      .item("_ROLLUP_HOLDING_HASH", Colls.fromArray(ScriptGenerator.mkSigTrue(ctx).hashedPropBytes))
+      .item("_FIXED_RATE", FIXED_RATE)
+      .item("_FIXED_RATE_PERIOD", FIXED_RATE_PERIOD)
+      .item("_FOUNDER_INIT_REWARD", FOUND_INIT_RWRD)
+      .item("_EPOCH_LENGTH", EPOCH_LENGTH)
+      .item("_ONE_EPOCH_REDUCTION", ONE_EPOCH_RED)
+      .build()
+
+    Contract.fromErgoScript(ctx, constants, ScriptGenerator.mkCollatScript("Collateral_Testnet"))
+  }
+
   def coinsToIssue(height: Long): Long = {
     val minersReward = FIXED_RATE - FOUND_INIT_RWRD
     val minersFixedRatePeriod = FIXED_RATE_PERIOD + 2 * EPOCH_LENGTH

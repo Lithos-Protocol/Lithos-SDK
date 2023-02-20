@@ -1,15 +1,19 @@
 package work.lithos
 package collateral
 
+import org.bouncycastle.util.encoders.Hex
 import org.ergoplatform.appkit.scalaapi.ErgoValueBuilder
-import org.ergoplatform.appkit.{Address, ErgoId, ErgoValue, NetworkType, Parameters, PreHeader, RestApiErgoClient}
+import org.ergoplatform.appkit.{Address, ErgoId, ErgoValue, NetworkType, Parameters, PreHeader, RestApiErgoClient, SecretString}
 import org.scalatest.funsuite.AnyFunSuite
+import sigmastate.Values.ErgoTree
 import sigmastate.eval.CostingSigmaDslBuilder.Colls
+import sigmastate.serialization.ErgoTreeSerializer
 import work.lithos.lfsm.collateral.CollateralContract
-import work.lithos.mutations.{Contract, Token, TxBuilder, UTXO}
+import work.lithos.mutations.{Contract, InputUTXO, Token, TxBuilder, UTXO}
 import work.lithos.utils.ScriptGenerator
 
 import java.math.BigInteger
+import scala.collection.JavaConverters.collectionAsScalaIterableConverter
 
 class CollateralSuite extends AnyFunSuite{
 
@@ -22,7 +26,31 @@ class CollateralSuite extends AnyFunSuite{
     "",
     RestApiErgoClient.getDefaultExplorerUrl(networkType))
 
+  test("Make collateral box"){
+    client.execute{
+      ctx =>
+        val prover = ctx.newProverBuilder().withMnemonic(SecretString.create("Put Secret Key Here :)"),
+          SecretString.empty(), false).withEip3Secret(0).build()
 
+        println(prover.getAddress)
+        val collateral: Contract = CollateralContract.mkTestCollatContract(ctx)
+        val inputs = ctx.getBoxesById("5a3f8a958178fc6e3b37aeea8fb94d8e6d33a7e4d2c7e70aa7db4e13c08a9903", "33f52c7df5a518cbe4269862728e763ef7970b398977c9b1554716e1af2aa447")
+        val output = UTXO(collateral, ((67.5 * Parameters.OneErg) - (Parameters.MinFee * 100)).toLong, registers = Seq(
+          ErgoValueBuilder.buildFor(Parameters.MinFee * 100),
+          ErgoValue.of(prover.getAddress.getPublicKey) // Use default prover address as this is what is used to mine by the node
+        ))
+
+        val uTx = TxBuilder(ctx)
+          .setInputs(inputs.map(InputUTXO.apply(_)).toSeq :_*)
+          .setOutputs(output)
+          .buildTx(Parameters.MinFee, Address.create("3WxKZGZBdGsfBMhajuVHkqRtqS5NEDPUA23hmECHBMygZChBiPpA"))
+
+        val sTx = prover.sign(uTx)
+
+        val txId = ctx.sendTransaction(sTx)
+        println(txId)
+    }
+  }
   test("Pay Collateral No Change"){
     client.execute{
       ctx =>
