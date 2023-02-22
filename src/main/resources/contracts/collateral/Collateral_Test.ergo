@@ -12,6 +12,10 @@
   // _EPOCH_LENGTH - Length of emission epoch
   // _ONE_EPOCH_REDUCTION - Amount of Erg reduced from emissions after epoch
 
+
+    // This test contract accounts for a tx fee (required by Ergo appkit). Real contracts would have no need for a tx fee,
+    // due the collateral tx being inserted directly into the block during candidate formation.
+
   // If data input is present, assume collateral is being spent by miner, otherwise, assume refund.
   val isForPool = CONTEXT.dataInputs.getOrElse(0, SELF).id != SELF.id
 

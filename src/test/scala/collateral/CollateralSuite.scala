@@ -26,6 +26,17 @@ class CollateralSuite extends AnyFunSuite{
     "",
     RestApiErgoClient.getDefaultExplorerUrl(networkType))
 
+
+  test("Compile collateral contract"){
+    client.execute{
+      ctx =>
+        val collateral: Contract = CollateralContract.mkMainnetCollatContract(ctx, emissionId)
+        println(collateral.mainnetAddress)
+        println(collateral.testnetAddress)
+        println(Hex.toHexString(collateral.mainnetAddress.toPropositionBytes))
+    }
+  }
+
   test("Make collateral box"){
     client.execute{
       ctx =>
@@ -33,7 +44,7 @@ class CollateralSuite extends AnyFunSuite{
           SecretString.empty(), false).withEip3Secret(0).build()
 
         println(prover.getAddress)
-        val collateral: Contract = CollateralContract.mkTestCollatContract(ctx)
+        val collateral: Contract = CollateralContract.mkTestnetCollatContract(ctx)
         val inputs = ctx.getBoxesById("5a3f8a958178fc6e3b37aeea8fb94d8e6d33a7e4d2c7e70aa7db4e13c08a9903", "33f52c7df5a518cbe4269862728e763ef7970b398977c9b1554716e1af2aa447")
         val output = UTXO(collateral, ((67.5 * Parameters.OneErg) - (Parameters.MinFee * 100)).toLong, registers = Seq(
           ErgoValueBuilder.buildFor(Parameters.MinFee * 100),
@@ -54,7 +65,7 @@ class CollateralSuite extends AnyFunSuite{
   test("Pay Collateral No Change"){
     client.execute{
       ctx =>
-        val collateral: Contract = CollateralContract.mkCollatContract(ctx, emissionId)
+        val collateral: Contract = CollateralContract.mkOfflineTestCollatContract(ctx, emissionId)
         val feeValue: Long = Parameters.MinFee * 100
         val lender   = Address.create("9exChj86cfLEV1A3fuGYo4ciBVgHaDHU1UnyHrdBvvtVYFUgUxn")
         val lenderPk = lender.getPublicKey
@@ -100,7 +111,7 @@ class CollateralSuite extends AnyFunSuite{
   test("Pay Collateral With Change"){
     client.execute{
       ctx =>
-        val collateral: Contract = CollateralContract.mkCollatContract(ctx, emissionId)
+        val collateral: Contract = CollateralContract.mkOfflineTestCollatContract(ctx, emissionId)
         val feeValue: Long = Parameters.MinFee * 100
         val lender   = Address.create("9exChj86cfLEV1A3fuGYo4ciBVgHaDHU1UnyHrdBvvtVYFUgUxn")
         val lenderPk = lender.getPublicKey
