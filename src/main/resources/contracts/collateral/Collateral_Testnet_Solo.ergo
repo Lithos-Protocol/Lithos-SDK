@@ -54,7 +54,6 @@
         Coll(
           holdingBox.value == coinsToIssue - feeValue,
           holdingBox.tokens == SELF.tokens, // Copy assets from collateral box, allows for FIMOs distributed to Solo miners.
-          holdingBox.propositionBytes == lenderPk.propBytes,
           holdingBox.R4[Coll[Byte]].get == SELF.id // Ensure only one collateral box per tx
           )
         )
