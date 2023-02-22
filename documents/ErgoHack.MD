@@ -83,7 +83,7 @@ extremely secure. Coinbase modification requires that the collateral transaction
 meaning that both transactions must be present within the same block. This makes the actual collateral transaction almost
 like a sort of atomic swap. If a block with a collateral transaction ends up being orphaned, the collateral box used
 remains in the UTXO set, and at the same time, the block reward is never paid out to the lender. Lenders may also
-refund their collateral box back to themselves at any before it is selected by a miner.
+refund their collateral box back to themselves at any point before it is selected by a miner.
 
 ## Contract Files
 We created multiple contracts to help aid us during tests. The main contract is called
