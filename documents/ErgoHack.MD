@@ -51,7 +51,9 @@ per block. Our main contract can be viewed [here](/src/main/resources/contracts/
 
 The general idea of this contract is to calculate the amount of ERG to be emitted at the current height, and simply
 ensure the collateral box can cover it. Once verified the collateral is paid out to the pool contract (currently a filler contract), with the fee taken
-out of the payment. While the contract is free to view, we wish to point out a few key points about it which makes it
+out of the payment. There is no specific selection method for collateral boxes, meaning that the miner
+themself chooses which box to use. To prevent large fees by self-collateralized miners, there is a maximum fee
+implemented within the contract. While the contract is free to view, we wish to point out a few key points about it which makes it
 rather unique and unlike standard contracts.
 
 ### Lender & Block Miner
@@ -74,6 +76,14 @@ After setting R4 on the outputted emission box, the miner then includes the new 
 as a data input. The collateral contract then verifies that its id is equal to the id set on the new emission box. This has the important affect
 of making sure that only one collateral box can be spent per block. Allowing multiple collateral transactions per
 block would mean that some lenders could not be paid back, as there is only one block reward per block.
+
+### Lender Safety
+Due to the requirements of the coinbase modification, the collateral provided by the lenders is theoretically
+extremely secure. Coinbase modification requires that the collateral transaction be paired with the emission transaction,
+meaning that both transactions must be present within the same block. This makes the actual collateral transaction almost
+like a sort of atomic swap. If a block with a collateral transaction ends up being orphaned, the collateral box used
+remains in the UTXO set, and at the same time, the block reward is never paid out to the lender. Lenders may also
+refund their collateral box back to themselves at any before it is selected by a miner.
 
 ## Contract Files
 We created multiple contracts to help aid us during tests. The main contract is called
@@ -110,3 +120,9 @@ working, along with styling of the website. The UI demo is heavily based off of 
 A link to the repo is visible [here](https://github.com/Lithos-Protocol/Front-End)
 
 ![image](/documents/LithosFrontEnd.PNG)
+
+# Conclusion
+CMPs serve as a way to help Ergo decentralize block production back down to the levels seen during
+Autolykos I. Miners in CMPs are able to select their own transactions and votes on the block header, providing more
+control and power to them compared to traditional mining pools. Moreover, the ability to use them for FIMO's and for lenders to gain yield on ERG means
+they help provide more ways for both miners and users to participate in DeFi on Ergo. 
