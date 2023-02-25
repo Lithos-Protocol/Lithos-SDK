@@ -121,6 +121,8 @@ A link to the repo is visible [here](https://github.com/Lithos-Protocol/Front-En
 
 ![image](/documents/LithosFrontEnd.PNG)
 
+EDIT:  The UI is still WIP, but has been deployed.  A mining offering can be created and the transaction can be seen on the blockchain (explorer).  Please only test with token/coins you are willing to lose.  http://lithos.work/ 
+
 # Conclusion
 CMPs serve as a way to help Ergo decentralize block production back down to the levels seen during
 Autolykos I. Miners in CMPs are able to select their own transactions and votes on the block header, providing more
