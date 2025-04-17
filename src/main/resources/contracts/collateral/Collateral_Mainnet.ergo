@@ -23,11 +23,7 @@
   if(isForPool){
       val newEmBox = CONTEXT.dataInputs(0)
 
-      val correctEmission = newEmBox.tokens(0)._1 == _EMISSION_ID
-
-      val modifiedCoinbase = newEmBox.R4[Coll[Byte]].get == SELF.id
-      val newlyEmitted = newEmBox.creationInfo._1 == HEIGHT // Verify that we are using the outputted emission box as the data input
-
+      // Emission calculations
       val minersReward = _FIXED_RATE - _FOUNDER_INIT_REWARD
       val minersFixedRatePeriod = _FIXED_RATE_PERIOD + 2 * _EPOCH_LENGTH
       val epoch = 1 + (HEIGHT - _FIXED_RATE_PERIOD) / _EPOCH_LENGTH
@@ -38,15 +34,28 @@
         _FIXED_RATE - (_ONE_EPOCH_REDUCTION * epoch)
       }
 
+      val afterReEmission = {
+        if(coinsToIssue > 15000000000L){
+          coinsToIssue - 12000000000L // Must only cover (R - 12) ERG while emission is over 15 ERG
+        }else{
+          3000000000L // Must cover (R - (R - 3)) or 3 ERG while emission is under 15 and during Re-Emission period where reward is stable
+        }
+      }
+
       val holdingBox:     Box = OUTPUTS(0)
 
-      val enoughValue  = SELF.value >= coinsToIssue - feeValue
+      val enoughValue  = SELF.value >= afterReEmission - feeValue
+      val correctEmission = newEmBox.tokens(0)._1 == _EMISSION_ID
+
+      // Ensure only one collateral tx per block
+      val modifiedCoinbase = newEmBox.R4[Coll[Byte]].get == SELF.id
+      val newlyEmitted = newEmBox.creationInfo._1 == HEIGHT // Verify that we are using the outputted emission box as the data input
 
       // Fee taken from holding box, and fee does not exceed 3% (to prevent abuse by miners who self collateralize)
       val holdingValid = allOf(
         Coll(
-          holdingBox.value == coinsToIssue - feeValue,
-          (feeValue * 100000) / coinsToIssue < 3000,
+          holdingBox.value == afterReEmission - feeValue,
+          (feeValue * 100000) / coinsToIssue < 30000,
           blake2b256( holdingBox.propositionBytes ) == _ROLLUP_HOLDING_HASH,
           holdingBox.R4[Coll[Byte]].get == SELF.id // Ensure only one collateral box per tx
           )
@@ -57,12 +66,12 @@
       val lenderIsBlockMiner = lenderPk.propBytes == proveDlog(CONTEXT.preHeader.minerPk).propBytes
 
       val madeChangeBox = {
-        if(SELF.value > coinsToIssue - feeValue ){
+        if(SELF.value > afterReEmission - feeValue ){
           val changeBox = OUTPUTS(1)
 
           allOf(
             Coll(
-              changeBox.value == SELF.value - (coinsToIssue - feeValue),
+              changeBox.value == SELF.value - (afterReEmission - feeValue),
               changeBox.propositionBytes == lenderPk.propBytes
             )
           )
