@@ -1,9 +1,4 @@
-[debug] downloaded https://repo1.maven.org/maven2/org/slf4j/slf4j-jdk14/2.0.5/slf4j-jdk14-2.0.5.pom
-[debug] downloaded https://repo1.maven.org/maven2/org/slf4j/slf4j-parent/2.0.5/slf4j-parent-2.0.5.pom
-[debug] downloaded https://repo1.maven.org/maven2/org/slf4j/slf4j-api/2.0.5/slf4j-api-2.0.5.pom
-[debug] downloaded https://repo1.maven.org/maven2/org/slf4j/slf4j-jdk14/2.0.5/slf4j-jdk14-2.0.5.jar
-[debug] downloaded https://repo1.maven.org/maven2/org/slf4j/slf4j-api/2.0.5/slf4j-api-2.0.5.jar
-[debug] downloaded https://repo1.maven.org/maven2/org/slf4j/slf4j-jdk14/2.0.5/slf4j-jdk14-2.0.5-javadoc.jar
-[debug] downloaded https://repo1.maven.org/maven2/org/slf4j/slf4j-jdk14/2.0.5/slf4j-jdk14-2.0.5-sources.jar
-[debug] downloaded https://repo1.maven.org/maven2/org/slf4j/slf4j-api/2.0.5/slf4j-api-2.0.5-sources.jar
-[debug] downloaded https://repo1.maven.org/maven2/org/slf4j/slf4j-api/2.0.5/slf4j-api-2.0.5-javadoc.jar
+[debug] downloaded https://repo1.maven.org/maven2/io/github/k-singh/plasma-toolkit_2.12/1.0.2/plasma-toolkit_2.12-1.0.2.pom
+[debug] downloaded https://repo1.maven.org/maven2/io/github/k-singh/plasma-toolkit_2.12/1.0.2/plasma-toolkit_2.12-1.0.2.jar
+[debug] downloaded https://repo1.maven.org/maven2/io/github/k-singh/plasma-toolkit_2.12/1.0.2/plasma-toolkit_2.12-1.0.2-sources.jar
+[debug] downloaded https://repo1.maven.org/maven2/io/github/k-singh/plasma-toolkit_2.12/1.0.2/plasma-toolkit_2.12-1.0.2-javadoc.jar

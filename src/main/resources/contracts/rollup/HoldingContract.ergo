@@ -88,6 +88,8 @@
       Coll(
         nextUTXO.value  == SELF.value,
         nextTree        == nispTree,
+        !nextTree.isInsertAllowed,
+        nextTree.isRemoveAllowed,
         nextMiners      == currentMiners,
         nextScore       == totalScore,
         nextPeriod      == HEIGHT // Period start is updated as we enter new phase
